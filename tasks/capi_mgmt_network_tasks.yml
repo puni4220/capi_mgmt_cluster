@@ -1,0 +1,51 @@
+---
+- name: Create the geneve tunnel network for the capi mgmt cluster
+  openstack.cloud.network:
+    interface: "{{ os_endpoint_type | default('public') }}"
+    state: present
+    name: "{{ capi_mgmt_net_name }}"
+  register: geneve_net
+  when: create_tunnelled_network_infra
+
+- name: Create the subnet for the capi mgmt cluster
+  openstack.cloud.subnet:
+    interface: "{{ os_endpoint_type | default('public') }}"
+    state: present
+    name: "{{ capi_mgmt_subnet_name }}"
+    network_name: "{{ capi_mgmt_net_name }}"
+    ip_version: 4
+    cidr: "{{ capi_mgmt_subnet_cidr }}"
+    dns_nameservers: "{{ capi_mgmt_dns_servers | split }}"
+  register: geneve_subnet
+  when: create_tunnelled_network_infra
+
+- name: Create the router for the capi mgmt cluster
+  openstack.cloud.router:
+    interface: "{{ os_endpoint_type | default('public') }}"
+    state: present
+    name: capi-mgmt-cluster-router
+    network: "{{ ext_net_id }}"
+    interfaces:
+      - "{{ capi_mgmt_subnet_name }}"
+  when: create_tunnelled_network_infra
+
+- name: Determine the net id to be used for creating the infra
+  set_fact:
+    infra_net_id: "{{ create_tunnelled_network_infra | ternary(geneve_net.id, ext_net_id) }}"
+
+- name: Display the net id to be used for creating the infra
+  debug: 
+    msg: "the net id to be used for creating the infra: {{ infra_net_id }}"
+    
+- name: Determine the subnet id to be used for creating the infra
+  openstack.cloud.networks_info:
+    filters:
+      id: "{{ infra_net_id }}"
+  register: _infra_net_id_detail
+
+- ansible.builtin.set_fact:
+    infra_subnet_id: "{{ _infra_net_id_detail.networks[0].subnet_ids[0] }}"
+
+- name: Display the subnet id to be used for creating the infra
+  debug:
+    msg: "the subnet id to be used for creating the infra: {{ infra_subnet_id }}"

@@ -1,0 +1,57 @@
+---
+- name: Obtain the ip addresses of the ports for the capi mgmt cluster
+  openstack.cloud.port_info:
+    interface: "{{ os_endpoint_type | default('public') }}"
+    name: "{{ item.name }}"
+  register: _capi_port_details
+  loop: "{{ capi_mgmt_cluster_ports }}"
+
+- name: Create the list of ip addresses for the ports
+  ansible.builtin.set_fact:
+    capi_cluster_port_ips: "{{ capi_cluster_port_ips | default([]) + [ item.ports[0].fixed_ips[0].ip_address ] }}"
+  loop: "{{ _capi_port_details.results }}"
+  no_log: true
+
+- name: Display the port ip addresses for the capi cluster mgmt ports
+  ansible.builtin.debug:
+    msg: "member ip: {{ item }}"
+  loop: "{{ capi_cluster_port_ips }}"
+
+- name: Create the loadbalancer for the capi mgmt cluster
+  openstack.cloud.loadbalancer:
+    interface: "{{ os_endpoint_type | default('public') }}"
+    state: present
+    name: "{{ capi_mgmt_cluster_lb_name }}"
+    vip_subnet: "{{ infra_subnet_id }}"
+  register: _capi_mgmt_lb
+
+- name: Create the listener for the capi mgmt cluster lb
+  openstack.cloud.lb_listener:
+    interface: "{{ os_endpoint_type | default('public') }}"
+    state: present
+    name: "{{ capi_mgmt_cluster_lb_listener_name }}"
+    load_balancer: "{{ _capi_mgmt_lb.load_balancer.id }}"
+    protocol: TCP
+    protocol_port: 6443
+  register: _capi_mgmt_lb_listener
+
+- name: Create the pool for the capi mgmt cluster lb
+  openstack.cloud.lb_pool:
+    interface: "{{ os_endpoint_type | default('public') }}"
+    state: present
+    name: "{{ capi_mgmt_cluster_lb_pool_name }}"
+    listener: "{{ _capi_mgmt_lb_listener.listener.id }}"
+    lb_algorithm: ROUND_ROBIN
+    protocol: TCP
+  register: _capi_mgmt_lb_pool
+
+- name: Create the members for the capi mgmt cluster lb 
+  openstack.cloud.lb_member:
+    interface: "{{ os_endpoint_type | default('public') }}"
+    state: present
+    name: "member-{{ item }}"
+    pool: "{{ _capi_mgmt_lb_pool.pool.id }}"
+    address: "{{ item }}"
+    protocol_port: 6443
+    subnet_id: "{{ infra_subnet_id }}"
+  loop: "{{ capi_cluster_port_ips }}"

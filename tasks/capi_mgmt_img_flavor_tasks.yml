@@ -1,0 +1,60 @@
+---
+- name: Check if image for capi mgmt cluster is already uploaded
+  openstack.cloud.image_info:
+    interface: "{{ os_endpoint_type | default('public') }}"
+    name: "{{ capi_mgmt_cluster_image }}"
+  register: _capi_mgmt_cluster_preuploaded_image_detail
+
+- name: Download the image for the capi mgmt cluster if required
+  ansible.builtin.get_url:
+    url: https://cloud-images.ubuntu.com/jammy/20251113/jammy-server-cloudimg-amd64.img
+    dest: /tmp/jammy-server-cloudimg-amd64.img
+    mode: '0644'
+  when: _capi_mgmt_cluster_preuploaded_image_detail.images | length == 0
+
+- name: Upload the image to glance for the capi mgmt cluster
+  openstack.cloud.image:
+    interface: "{{ os_endpoint_type | default('public') }}"
+    state: present
+    name: "{{ capi_mgmt_cluster_image }}"
+    disk_format: qcow2
+    container_format: bare
+    filename: /tmp/jammy-server-cloudimg-amd64.img
+    visibility: shared
+  register: _capi_mgmt_cluster_ansibleupload_image_detail
+  when: _capi_mgmt_cluster_preuploaded_image_detail.images | length == 0
+
+- name: Create the flavor for the capi mgmt cluster
+  openstack.cloud.compute_flavor:
+    interface: "{{ os_endpoint_type | default('public') }}"
+    state: present
+    name: "{{ capi_mgmt_cluster_flavor.name }}"
+    vcpus: "{{ capi_mgmt_cluster_flavor.vcpus }}"
+    ram: "{{ capi_mgmt_cluster_flavor.ram }}"
+    disk: "{{ capi_mgmt_cluster_flavor.disk }}"
+    ephemeral: "{{ capi_mgmt_cluster_flavor.ephemeral }}"
+    description: "{{ capi_mgmt_cluster_flavor.description }}"
+    is_public: "{{ capi_mgmt_cluster_flavor.is_public }}"
+  register: _capi_mgmt_cluster_flavor_detail
+
+- name: Set the image id to the pre-uploaded ubuntu22 image
+  set_fact:
+    infra_image_id: "{{ _capi_mgmt_cluster_preuploaded_image_detail.images[0].id }}"
+  when: _capi_mgmt_cluster_preuploaded_image_detail.images | length == 1
+
+- name: Set the image id to the ansible-uploaded ubuntu22 image
+  set_fact:
+    infra_image_id: "{{ _capi_mgmt_cluster_ansibleupload_image_detail.image.id }}"
+  when: _capi_mgmt_cluster_preuploaded_image_detail.images | length == 0
+
+- name: Display the image id to be used for capi mgmt cluster
+  debug:
+    msg: "the image id to be used for the capi mgmt cluster: {{ infra_image_id }}"
+
+- name: Set the flavor id to be used for the capi mgmt cluster
+  ansible.builtin.set_fact:
+    infra_flavor_id: "{{ _capi_mgmt_cluster_flavor_detail.flavor.id }}"
+
+- name: Display the flavor id to be used for capi mgmt cluster
+  ansible.builtin.debug:
+    msg: "the flavor id to be used for the capi mgmt cluster: {{ infra_flavor_id }}"

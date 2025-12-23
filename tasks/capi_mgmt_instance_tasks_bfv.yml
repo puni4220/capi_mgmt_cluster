@@ -1,0 +1,14 @@
+---
+- name: Create the instances for the capi mgmt cluster
+  openstack.cloud.server:
+    interface: "{{ os_endpoint_type | default('public') }}"
+    state: present
+    name: "{{ item.name }}"
+    flavor: "{{ infra_flavor_id }}"
+    key_name: "{{ capi_mgmt_cluster_keypair.name }}"
+    nics:
+      - port-name: "{{ item.port_name }}"
+    security_groups:
+      - "{{ infra_secgroup_id }}"
+    boot_volume: "{{ item.boot_volume_name }}"
+  loop: "{{ capi_mgmt_cluster_instances }} "

@@ -1,0 +1,85 @@
+---
+# defaults file for capi_mgmt_cluster
+create_tunnelled_network_infra: true
+os_endpoint_type: "public"
+capi_mgmt_net_name: "capi-mgmt-net"
+capi_mgmt_subnet_name: "capi-mgmt-subnet"
+capi_mgmt_subnet_cidr: 172.16.5.0/24
+capi_mgmt_dns_servers: "10.20.248.1"
+ext_net_id: 44e6537f-d36b-48a6-818f-44a1c595eff4
+
+capi_mgmt_cluster_lb_name: "capi-mgmt-cluster-lb"
+capi_mgmt_cluster_lb_listener_name: "capi-mgmt-cluster-listener"
+capi_mgmt_cluster_lb_pool_name: "capi-mgmt-cluster-pool"
+
+capi_mgmt_secgroup_name: "capi-mgmt-cluster-secgroup"
+
+capi_mgmt_secgroup_rules:
+  - protocol: tcp
+    port_range_min: 22
+    port_range_max: 22
+    remote_ip_prefix: 0.0.0.0/0
+    direction: ingress
+    ethertype: IPv4
+  - protocol: tcp
+    port_range_min: 6443
+    port_range_max: 6443
+    remote_ip_prefix: 0.0.0.0/0
+    direction: ingress
+    ethertype: IPv4
+  - protocol: icmp
+    port_range_min: -1
+    port_range_max: -1
+    remote_ip_prefix: 0.0.0.0/0
+    direction: ingress
+    ethertype: IPv4
+
+capi_mgmt_cluster_ports:
+  - name: capi_mgmt_port1
+    description: "capi mgmt cluster port 1"
+  - name: capi_mgmt_port2
+    description: "capi mgmt cluster port 2"
+  - name: capi_mgmt_port3
+    description: "capi mgmt cluster port 3"
+
+capi_mgmt_cluster_image: "ubuntu22"
+
+capi_boot_from_volume: true
+capi_mgmt_cluster_flavor:
+  name: 'm1.capi-mgmt-cluster-flavor'
+  vcpus: 4
+  ram: 2048
+  disk: "{{ capi_boot_from_volume | ternary(0,'80') }}"
+  ephemeral: 10
+  description: "capi mgmt cluster flavor"
+  is_public: false
+
+capi_mgmt_cluster_volume_type: "lvmdriver-1" 
+
+capi_mgmt_cluster_volumes:
+  - name: capi_mgmt_cluster_volume_1
+    size: 15
+    volume_type: "{{ capi_mgmt_cluster_volume_type }}"
+  - name: capi_mgmt_cluster_volume_2
+    size: 15
+    volume_type: "{{ capi_mgmt_cluster_volume_type }}"
+  - name: capi_mgmt_cluster_volume_3
+    size: 15
+    volume_type: "{{ capi_mgmt_cluster_volume_type }}"
+
+capi_mgmt_cluster_keypair:
+  name: 'capi_mgmt_cluster_keypair'
+  path: "/var/tmp/capi_mgmt_cluster_keypair"
+  type: rsa
+  size: 2048
+
+capi_mgmt_cluster_instances:
+  - name: capi_mgmt_cluster_instance_1
+    port_name: "{{ capi_mgmt_cluster_ports[0].name }}"
+    boot_volume_name: "{{ capi_mgmt_cluster_volumes[0].name }}"
+  - name: capi_mgmt_cluster_instance_2
+    port_name: "{{ capi_mgmt_cluster_ports[1].name }}"
+    boot_volume_name: "{{ capi_mgmt_cluster_volumes[1].name }}"
+  - name: capi_mgmt_cluster_instance_3
+    port_name: "{{ capi_mgmt_cluster_ports[2].name }}"
+    boot_volume_name: "{{ capi_mgmt_cluster_volumes[2].name }}"
