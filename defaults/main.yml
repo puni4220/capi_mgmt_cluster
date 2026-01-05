@@ -5,8 +5,8 @@ os_endpoint_type: "public"
 capi_mgmt_net_name: "capi-mgmt-net"
 capi_mgmt_subnet_name: "capi-mgmt-subnet"
 capi_mgmt_subnet_cidr: 172.16.5.0/24
-capi_mgmt_dns_servers: "10.20.248.1"
-ext_net_id: 44e6537f-d36b-48a6-818f-44a1c595eff4
+capi_mgmt_dns_servers: "172.168.80.1"
+ext_net_id: 47212b20-8bb8-4f30-bd17-cc1e247af5a1
 
 capi_mgmt_cluster_lb_name: "capi-mgmt-cluster-lb"
 capi_mgmt_cluster_lb_listener_name: "capi-mgmt-cluster-listener"
@@ -50,7 +50,7 @@ capi_mgmt_cluster_flavor:
   vcpus: 4
   ram: 2048
   disk: "{{ capi_boot_from_volume | ternary(0,'80') }}"
-  ephemeral: 10
+  ephemeral: 0
   description: "capi mgmt cluster flavor"
   is_public: false
 
@@ -83,3 +83,7 @@ capi_mgmt_cluster_instances:
   - name: capi_mgmt_cluster_instance_3
     port_name: "{{ capi_mgmt_cluster_ports[2].name }}"
     boot_volume_name: "{{ capi_mgmt_cluster_volumes[2].name }}"
+
+
+capi_mgmt_cluster_lb_fip_name: "capi-mgmt-lb-fip"
+capi_mgmt_cluster_vm_fip_name: "capi-mgmt-cluster-vm-fip"

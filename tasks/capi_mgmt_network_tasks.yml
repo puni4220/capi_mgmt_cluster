@@ -24,9 +24,11 @@
     interface: "{{ os_endpoint_type | default('public') }}"
     state: present
     name: capi-mgmt-cluster-router
-    network: "{{ ext_net_id }}"
     interfaces:
       - "{{ capi_mgmt_subnet_name }}"
+    external_gateway_info:
+      enable_snat: true
+      network: "{{ ext_net_id }}"
   when: create_tunnelled_network_infra
 
 - name: Determine the net id to be used for creating the infra

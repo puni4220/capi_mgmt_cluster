@@ -55,3 +55,7 @@
     protocol_port: 6443
     subnet_id: "{{ infra_subnet_id }}"
   loop: "{{ capi_cluster_port_ips }}"
+
+- name: Determine the vip address of the capi mgmt cluster lb
+  set_fact:
+    capi_mgmt_lb_vip: "{{ _capi_mgmt_lb.load_balancer.vip_address }}"

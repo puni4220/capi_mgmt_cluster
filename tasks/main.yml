@@ -10,9 +10,14 @@
 - import_tasks: capi_mgmt_keypair_tasks.yml
 
 - include_tasks: capi_mgmt_volume_tasks.yml
-  when: capi_boot_from_volume
+  when: (capi_boot_from_volume | bool)
 
 - import_tasks: capi_mgmt_lb_tasks.yml
 
 - include_tasks: capi_mgmt_instance_tasks_bfv.yml
-  when: capi_boot_from_volume
+  when: (capi_boot_from_volume | bool)
+
+- include_tasks: capi_mgmt_instance_tasks_bfi.yml
+  when: not (capi_boot_from_volume | bool)
+
+- include_tasks: capi_mgmt_floatingip_tasks.yml

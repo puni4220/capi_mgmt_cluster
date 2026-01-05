@@ -11,5 +11,5 @@
     security_groups:
       - "{{ infra_secgroup_id }}"
     auto_ip: false
-    boot_volume: "{{ item.boot_volume_name }}"
+    image: "{{ infra_image_id }}"
   loop: "{{ capi_mgmt_cluster_instances }} "
