@@ -12,4 +12,5 @@
       - "{{ infra_secgroup_id }}"
     auto_ip: false
     boot_volume: "{{ item.boot_volume_name }}"
+    metadata: "group=capi_mgmt_cluster_vms"
   loop: "{{ capi_mgmt_cluster_instances }} "

@@ -1,6 +1,6 @@
 ---
 # defaults file for capi_mgmt_cluster
-create_tunnelled_network_infra: true
+create_tunnelled_network_infra: false
 os_endpoint_type: "public"
 capi_mgmt_net_name: "capi-mgmt-net"
 capi_mgmt_subnet_name: "capi-mgmt-subnet"
@@ -33,13 +33,25 @@ capi_mgmt_secgroup_rules:
     remote_ip_prefix: 0.0.0.0/0
     direction: ingress
     ethertype: IPv4
+  - protocol: tcp
+    port_range_min: 2379
+    port_range_max: 2380
+    remote_ip_prefix: 0.0.0.0/0
+    direction: ingress
+    ethertype: IPv4
+  - protocol: udp
+    port_range_min: 4789
+    port_range_max: 4789
+    remote_ip_prefix: 0.0.0.0/0
+    direction: ingress
+    ethertype: IPv4
 
 capi_mgmt_cluster_ports:
-  - name: capi_mgmt_port1
+  - name: capi-port1
     description: "capi mgmt cluster port 1"
-  - name: capi_mgmt_port2
+  - name: capi-port2
     description: "capi mgmt cluster port 2"
-  - name: capi_mgmt_port3
+  - name: capi-port3
     description: "capi mgmt cluster port 3"
 
 capi_mgmt_cluster_image: "ubuntu22"
@@ -74,16 +86,18 @@ capi_mgmt_cluster_keypair:
   size: 2048
 
 capi_mgmt_cluster_instances:
-  - name: capi_mgmt_cluster_instance_1
+  - name: capi-instance-1
     port_name: "{{ capi_mgmt_cluster_ports[0].name }}"
     boot_volume_name: "{{ capi_mgmt_cluster_volumes[0].name }}"
-  - name: capi_mgmt_cluster_instance_2
+  - name: capi-instance-2
     port_name: "{{ capi_mgmt_cluster_ports[1].name }}"
     boot_volume_name: "{{ capi_mgmt_cluster_volumes[1].name }}"
-  - name: capi_mgmt_cluster_instance_3
+  - name: capi-instance-3
     port_name: "{{ capi_mgmt_cluster_ports[2].name }}"
     boot_volume_name: "{{ capi_mgmt_cluster_volumes[2].name }}"
 
 
-capi_mgmt_cluster_lb_fip_name: "capi-mgmt-lb-fip"
-capi_mgmt_cluster_vm_fip_name: "capi-mgmt-cluster-vm-fip"
+capi_mgmt_cluster_inventory_path: "/var/tmp/capi-mgmt-inventory.ini"
+
+capi_mgmt_bootstrap_vm_user: "ubuntu"
+capi_mgmt_bootstrap_vm_path: "/home/ubuntu"

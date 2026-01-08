@@ -1,0 +1,46 @@
+---
+- name: Obtain the details of the capi mgmt cluster vms
+  openstack.cloud.server_info:
+    interface: "{{ os_endpoint_type | default('public') }}"
+    filters:
+      metadata:
+        group: 'capi_mgmt_cluster_vms'
+  register: _capi_mgmt_cluster_vms
+
+- name: Create the inventory for the capi mgmt cluster vms
+  ansible.builtin.template:
+    src: templates/inventory.j2
+    dest: "{{ capi_mgmt_cluster_inventory_path }}"
+
+- name: Determinte the ip address for the bootstrap vm
+  ansible.builtin.set_fact:
+    bootstrap_vm_ip: "{{ create_tunnelled_network_infra | ternary(bootstrap_vm_floating_ip, capi_cluster_port_ips[0]) }}"
+
+- name: Display the ip address for the bootstrap vm
+  ansible.builtin.debug:
+    msg: "Bootstrap vm ip address: {{ bootstrap_vm_ip }}"
+
+- name: add the bootstrap vm to the ansible inventory
+  ansible.builtin.add_host:
+    name: "{{ bootstrap_vm_ip }}"
+    groups: 'capi_mgmt_bootstrp_vm'
+    ansible_ssh_host: "{{ bootstrap_vm_ip }}"
+    ansible_ssh_user: 'ubuntu'
+    ansible_ssh_private_key_file: "{{ capi_mgmt_cluster_keypair.path }}"
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+
+- name: Copy the inventory file to the bootstrap vm
+  ansible.builtin.command:
+    cmd: >
+      rsync -avz 
+      -e "ssh -i {{ capi_mgmt_cluster_keypair.path }} -o StrictHostKeyChecking=no" 
+      {{ capi_mgmt_cluster_inventory_path }}
+      {{ capi_mgmt_bootstrap_vm_user }}@{{ bootstrap_vm_ip }}:{{ capi_mgmt_bootstrap_vm_path }}
+
+- name: Copy the private key to the bootstrap vm
+  ansible.builtin.command:
+    cmd: >
+      rsync -avz
+      -e "ssh -i {{ capi_mgmt_cluster_keypair.path }} -o StrictHostKeyChecking=no"
+      {{ capi_mgmt_cluster_keypair.path }}
+      {{ capi_mgmt_bootstrap_vm_user }}@{{ bootstrap_vm_ip }}:{{ capi_mgmt_bootstrap_vm_path }}

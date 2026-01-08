@@ -1,5 +1,5 @@
 ---
-- name: Set the floating ip for the capi mgmt cluster bootstrap vm
+- name: Obtain the floating ip for the capi mgmt cluster bootstrap vm
   openstack.cloud.floating_ip:
     interface: "{{ os_endpoint_type | default('public') }}"
     state: present
@@ -8,6 +8,10 @@
     server: "{{ capi_mgmt_cluster_instances[0].name }}"
     wait: true
   register: _capi_bootstrap_vm_fip
+
+- name: Set the floating ip for the capi mgmt cluster bootstrap vm
+  ansible.builtin.set_fact:
+    bootstrap_vm_floating_ip: "{{ _capi_bootstrap_vm_fip.floating_ip.floating_ip_address }}"
 
 - name: add the bootstrap vm to the ansible inventory
   ansible.builtin.add_host:

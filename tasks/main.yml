@@ -21,3 +21,8 @@
   when: not (capi_boot_from_volume | bool)
 
 - include_tasks: capi_mgmt_floatingip_tasks.yml
+  when: (create_tunnelled_network_infra | bool)
+
+- import_tasks: capi_mgmt_additional_tasks.yml
+  tags:
+    - capi-mgmt-cluster-additional
