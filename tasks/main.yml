@@ -14,6 +14,8 @@
 
 - import_tasks: capi_mgmt_lb_tasks.yml
 
+- import_tasks: capi_mgmt_server_group_tasks.yml
+
 - include_tasks: capi_mgmt_instance_tasks_bfv.yml
   when: (capi_boot_from_volume | bool)
 
@@ -24,5 +26,3 @@
   when: (create_tunnelled_network_infra | bool)
 
 - import_tasks: capi_mgmt_additional_tasks.yml
-  tags:
-    - capi-mgmt-cluster-additional

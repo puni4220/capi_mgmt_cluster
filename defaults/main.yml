@@ -5,8 +5,8 @@ os_endpoint_type: "public"
 capi_mgmt_net_name: "capi-mgmt-net"
 capi_mgmt_subnet_name: "capi-mgmt-subnet"
 capi_mgmt_subnet_cidr: 172.16.5.0/24
-capi_mgmt_dns_servers: "172.168.80.1"
-ext_net_id: 47212b20-8bb8-4f30-bd17-cc1e247af5a1
+capi_mgmt_dns_servers: "10.20.248.1"
+ext_net_id: 54a88ebc-4b2f-4f37-8a75-c7838cb4c488
 
 capi_mgmt_cluster_lb_name: "capi-mgmt-cluster-lb"
 capi_mgmt_cluster_lb_listener_name: "capi-mgmt-cluster-listener"
@@ -68,6 +68,8 @@ capi_mgmt_cluster_flavor:
 
 capi_mgmt_cluster_volume_type: "lvmdriver-1" 
 
+capi_mgmt_cluster_group_name: "capi-server-group"
+
 capi_mgmt_cluster_volumes:
   - name: capi_mgmt_cluster_volume_1
     size: 15
@@ -98,6 +100,7 @@ capi_mgmt_cluster_instances:
 
 
 capi_mgmt_cluster_inventory_path: "/var/tmp/capi-mgmt-inventory.ini"
+capi_mgmt_cluster_script_path: "/var/tmp/capi-cluster-install.sh"
 
 capi_mgmt_bootstrap_vm_user: "ubuntu"
 capi_mgmt_bootstrap_vm_path: "/home/ubuntu"

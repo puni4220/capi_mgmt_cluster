@@ -13,4 +13,6 @@
     auto_ip: false
     boot_volume: "{{ item.boot_volume_name }}"
     metadata: "group=capi_mgmt_cluster_vms"
+    scheduler_hints:
+      group: "{{ capi_mgmt_server_group_id }}"
   loop: "{{ capi_mgmt_cluster_instances }} "

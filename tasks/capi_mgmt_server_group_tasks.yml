@@ -1,0 +1,12 @@
+---
+- name: Create the anti-affinity server group for capi mgmt cluster
+  openstack.cloud.server_group:
+    interface: "{{ os_endpoint_type | default('public') }}"
+    state: present
+    name: "{{ capi_mgmt_cluster_group_name }}"
+    policy: "{{ capi_mgmt_cluster_group_policy | default('anti-affinity') }}"
+  register: _capi_mgmt_cluster_server_group
+
+- name: Set the group id for the capi mgmt cluster
+  ansible.builtin.set_fact:
+    capi_mgmt_server_group_id: "{{ _capi_mgmt_cluster_server_group.server_group.id }}"

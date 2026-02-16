@@ -12,12 +12,3 @@
 - name: Set the floating ip for the capi mgmt cluster bootstrap vm
   ansible.builtin.set_fact:
     bootstrap_vm_floating_ip: "{{ _capi_bootstrap_vm_fip.floating_ip.floating_ip_address }}"
-
-- name: add the bootstrap vm to the ansible inventory
-  ansible.builtin.add_host:
-    name: "{{ _capi_bootstrap_vm_fip.floating_ip.floating_ip_address }}"
-    groups: 'capi_mgmt_bootstrp_vm'
-    ansible_ssh_host: "{{ _capi_bootstrap_vm_fip.floating_ip.floating_ip_address }}"
-    ansible_ssh_user: 'ubuntu'
-    ansible_ssh_private_key_file: "{{ capi_mgmt_cluster_keypair.path }}"
-    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"

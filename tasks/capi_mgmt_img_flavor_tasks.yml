@@ -7,7 +7,7 @@
 
 - name: Download the image for the capi mgmt cluster if required
   ansible.builtin.get_url:
-    url: https://cloud-images.ubuntu.com/jammy/20251113/jammy-server-cloudimg-amd64.img
+    url: https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img
     dest: /tmp/jammy-server-cloudimg-amd64.img
     mode: '0644'
   when: _capi_mgmt_cluster_preuploaded_image_detail.images | length == 0

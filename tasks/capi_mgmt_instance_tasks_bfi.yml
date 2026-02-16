@@ -12,4 +12,6 @@
       - "{{ infra_secgroup_id }}"
     auto_ip: false
     image: "{{ infra_image_id }}"
+    scheduler_hints:
+      group: "{{ capi_mgmt_server_group_id }}"
   loop: "{{ capi_mgmt_cluster_instances }} "
